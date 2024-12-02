@@ -1,0 +1,16 @@
+{
+  "name": "medicine-nfc-qr",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "nodemon server/server.js"  
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongoose": "^5.10.0",
+    "dotenv": "^8.2.0",
+    "axios": "^0.21.1"
+  }
+}
