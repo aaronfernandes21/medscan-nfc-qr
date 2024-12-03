@@ -1,28 +1,23 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-const medicineRoutes = require('./routes/medicineRoutes'); // Import the routes
+const express = require('express'); // Import express
+const dotenv = require('dotenv'); // Import dotenv for environment variables
+const connectDB = require('./config'); // Import the database connection function
 
-dotenv.config();
+dotenv.config(); // Load environment variables
 
-const app = express();
+const app = express(); // Initialize the Express app
 
-// Middleware to parse JSON data from request bodies
-app.use(express.json());
+// Middleware
+app.use(express.json()); // Middleware to parse JSON request bodies
 
-// Use medicine routes
-app.use('/api/medicines', medicineRoutes);
+// Routes
+const medicineRoutes = require('./routes/medicineRoutes'); // Import medicine routes
+app.use('/medicines', medicineRoutes); // Define the route for medicines
 
-// Connect to the database
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => {
-    console.log('Database connected');
-  })
-  .catch(err => {
-    console.log('Database connection failed:', err.message);
-  });
+// Database Connection
+connectDB(); // Connect to the database
 
-const PORT = process.env.PORT || 5000;
+// Start the server
+const PORT = process.env.PORT || 5000; // Get the port from the environment variables or use 5000
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
