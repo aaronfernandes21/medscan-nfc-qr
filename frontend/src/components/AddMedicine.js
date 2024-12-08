@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 const AddMedicine = () => {
+    // State variables to hold input values
     const [name, setName] = useState('');
     const [expiryDate, setExpiryDate] = useState('');
     const [uses, setUses] = useState('');
     const [manufacturingDate, setManufacturingDate] = useState('');
 
+    // Handle form submission
     const handleSubmit = (e) => {
-        e.preventDefault();
+        e.preventDefault();  // Prevent page refresh
 
         const newMedicine = {
             name,
@@ -17,12 +19,15 @@ const AddMedicine = () => {
             manufacturingDate,
         };
 
+        // Send POST request to the backend API
         axios.post('http://localhost:5000/medicines', newMedicine)
-            .then(response => {
+            .then((response) => {
                 alert('Medicine added successfully!');
+                console.log('Response:', response.data);  // Log the response for debugging
             })
-            .catch(error => {
-                console.error('There was an error adding the medicine!', error);
+            .catch((error) => {
+                console.error('Error adding medicine:', error.response?.data || error.message);
+                alert('Failed to add medicine');
             });
     };
 
@@ -39,6 +44,7 @@ const AddMedicine = () => {
                         required
                     />
                 </label>
+                <br />
                 <label>
                     Expiry Date:
                     <input
@@ -48,6 +54,7 @@ const AddMedicine = () => {
                         required
                     />
                 </label>
+                <br />
                 <label>
                     Uses:
                     <input
@@ -57,6 +64,7 @@ const AddMedicine = () => {
                         required
                     />
                 </label>
+                <br />
                 <label>
                     Manufacturing Date:
                     <input
@@ -66,6 +74,7 @@ const AddMedicine = () => {
                         required
                     />
                 </label>
+                <br />
                 <button type="submit">Add Medicine</button>
             </form>
         </div>

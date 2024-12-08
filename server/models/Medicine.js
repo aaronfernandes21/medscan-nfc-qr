@@ -3,21 +3,20 @@ const mongoose = require('mongoose');
 const medicineSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true,
+        required: true
     },
     expiryDate: {
         type: Date,
-        required: true,
+        required: true
     },
-   
     uses: {
         type: String,
-        required: true,
+        required: true
     },
     manufacturingDate: {
         type: Date,
-        // required: true,
-    },
-}, { timestamps: true });
+        required: true
+    }
+});
 
 module.exports = mongoose.model('Medicine', medicineSchema);

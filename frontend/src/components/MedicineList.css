@@ -1,0 +1,43 @@
+.medicine-list-container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.medicine-list h1 {
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+.medicine-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.medicine-item {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 5px;
+    width: 200px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.medicine-link {
+    text-decoration: none;
+    color: #333;
+}
+
+.medicine-link h3 {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+.medicine-link p {
+    font-size: 0.9em;
+    margin: 5px 0;
+}
+
+.medicine-link:hover {
+    background-color: #e1f7e1;
+    border-radius: 5px;
+}
