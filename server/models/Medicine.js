@@ -16,7 +16,8 @@ const medicineSchema = new mongoose.Schema({
     manufacturingDate: {
         type: Date,
         required: true
-    }
+    },
+    qrCode: { type: String } 
 });
 
 module.exports = mongoose.model('Medicine', medicineSchema);

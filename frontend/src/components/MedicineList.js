@@ -8,7 +8,7 @@ const MedicineList = () => {
 
     useEffect(() => {
         // Fetch medicines from the backend API
-        axios.get('http://localhost:5000/medicines')
+        axios.get('http://localhost:5000/api/medicines')
             .then((response) => {
                 setMedicines(response.data);  // Store fetched medicines in the state
                 setLoading(false);  // Set loading to false when data is fetched

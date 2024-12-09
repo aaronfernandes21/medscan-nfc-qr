@@ -1,37 +1,67 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const router = express.Router();
 const Medicine = require('../models/Medicine');
+const QRCode = require('qrcode');
+const isAdmin = require('../middleware/authMiddleware');
 
-// Get all medicines
 // GET all medicines
-router.get('/', async (req, res) => {
+router.get('/', async (req, res) => {  // Remove '/api/medicines' and keep it as '/'
     try {
         const medicines = await Medicine.find();
         res.json(medicines);
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error('Error fetching medicines:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
     }
 });
 
 // GET single medicine by ID
 router.get('/:id', async (req, res) => {
     try {
+        console.log(`Received request for medicine with ID: ${req.params.id}`);
         const medicine = await Medicine.findById(req.params.id);
+        
         if (!medicine) {
+            console.log('Medicine not found.');
             return res.status(404).json({ message: 'Medicine not found' });
         }
-        res.json(medicine);
+
+        console.log('Medicine found:', medicine);
+        res.status(200).json(medicine);
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error('Error fetching medicine:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+});
+
+// Generate and return the QR code for a particular medicine
+router.get('/:id/qr-code', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Validate the ID
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            console.error(`Invalid ID format: ${id}`);
+            return res.status(400).json({ message: 'Invalid medicine ID format.' });
+        }
+
+        const medicine = await Medicine.findById(id);
+        if (!medicine) {
+            console.error(`Medicine not found for ID: ${id}`);
+            return res.status(404).json({ message: 'Medicine not found' });
+        }
+
+        res.json({ qrCode: medicine.qrCode });
+    } catch (err) {
+        console.error('Error generating QR code:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
     }
 });
 
 // Create a new medicine
-router.post('/', async (req, res) => {
+router.post('/api/medicines', isAdmin, async (req, res) => {
     try {
-        console.log('Received request body:', req.body); // Log the incoming request data
-
-        // Destructure the request body
         const { name, expiryDate, uses, manufacturingDate } = req.body;
 
         if (!name || !expiryDate || !uses || !manufacturingDate) {
@@ -48,21 +78,35 @@ router.post('/', async (req, res) => {
 
         // Save the medicine to the database
         const savedMedicine = await newMedicine.save();
-        console.log('Saved Medicine:', savedMedicine);  // Log the saved medicine
 
-        // Respond with the saved medicine
+        // Generate QR Code containing the URL to the medicine details
+        const medicineUrl = `http://localhost:3000/medicine/${savedMedicine._id}`;
+        const qrCode = await QRCode.toDataURL(medicineUrl);
+
+        // Update the saved medicine with the QR Code
+        savedMedicine.qrCode = qrCode;
+        await savedMedicine.save();
+
         res.status(201).json(savedMedicine);
     } catch (err) {
-        console.error('Error adding medicine:', err);  // Log any errors
+        console.error('Error adding medicine:', err);
         res.status(500).json({ message: 'Failed to add medicine', error: err.message });
     }
 });
 
 // Update an existing medicine by ID
-router.put('/:id', async (req, res) => {
+router.put('/:id', async (req, res) => {  // Use just '/:id' and not '/api/medicines/:id'
     try {
+        const { id } = req.params;
+
+        // Validate the ID
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            console.error(`Invalid ID format: ${id}`);
+            return res.status(400).json({ message: 'Invalid medicine ID format.' });
+        }
+
         const updatedMedicine = await Medicine.findByIdAndUpdate(
-            req.params.id,
+            id,
             {
                 name: req.body.name,
                 expiryDate: req.body.expiryDate,
@@ -73,50 +117,39 @@ router.put('/:id', async (req, res) => {
         );
 
         if (!updatedMedicine) {
+            console.error(`Medicine not found for ID: ${id}`);
             return res.status(404).json({ message: 'Medicine not found' });
         }
 
         res.json(updatedMedicine);
     } catch (err) {
-        res.status(400).json({ message: err.message });
+        console.error('Error updating medicine:', err);
+        res.status(500).json({ message: 'Failed to update medicine', error: err.message });
     }
 });
 
 // Delete a medicine by ID
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', async (req, res) => { // Use just '/:id' and not '/api/medicines/:id'
     try {
-        const medicine = await Medicine.findByIdAndDelete(req.params.id);
+        const { id } = req.params;
+
+        // Validate the ID
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            console.error(`Invalid ID format: ${id}`);
+            return res.status(400).json({ message: 'Invalid medicine ID format.' });
+        }
+
+        const medicine = await Medicine.findByIdAndDelete(id);
         if (!medicine) {
+            console.error(`Medicine not found for ID: ${id}`);
             return res.status(404).json({ message: 'Medicine not found' });
         }
+
         res.json({ message: 'Medicine deleted successfully' });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error('Error deleting medicine:', err);
+        res.status(500).json({ message: 'Failed to delete medicine', error: err.message });
     }
 });
 
 module.exports = router;
-router.post('/', async (req, res) => {
-    try {
-        // Destructure the request body
-        const { name, expiryDate, uses, manufacturingDate } = req.body;
-
-        // Create a new Medicine instance
-        const newMedicine = new Medicine({
-            name,
-            expiryDate,
-            uses,
-            manufacturingDate
-        });
-
-        // Save the medicine to the database
-        const savedMedicine = await newMedicine.save();
-
-        // Respond with the saved medicine
-        res.status(201).json(savedMedicine);
-    } catch (err) {
-        console.error('Error adding medicine:', err);
-        res.status(500).json({ message: 'Failed to add medicine', error: err.message });
-    }
-});
-
