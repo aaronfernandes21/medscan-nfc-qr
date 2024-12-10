@@ -1,52 +1,50 @@
+// src/components/MedicineList.js
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
+import { Card, Col, Row, Container, Button } from 'react-bootstrap';
 
 const MedicineList = () => {
-    const [medicines, setMedicines] = useState([]);
-    const [loading, setLoading] = useState(true); // Add loading state
-    const [error, setError] = useState(null); // Add error state
+  const [medicines, setMedicines] = useState([]);
 
-    useEffect(() => {
-        // Fetch medicines from the backend API
-        axios.get('http://localhost:5000/api/medicines')
-            .then((response) => {
-                setMedicines(response.data);  // Store fetched medicines in the state
-                setLoading(false);  // Set loading to false when data is fetched
-            })
-            .catch((error) => {
-                setError(error.message);  // Handle error
-                setLoading(false);  // Set loading to false even when there's an error
-            });
-    }, []);
+  useEffect(() => {
+    const fetchMedicines = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/medicines');
+        setMedicines(response.data);
+      } catch (error) {
+        console.error('Error fetching medicines:', error);
+      }
+    };
 
-    if (loading) {
-        return <p>Loading medicines...</p>;  // Show loading message while fetching data
-    }
+    fetchMedicines();
+  }, []);
 
-    if (error) {
-        return <p>Error: {error}</p>;  // Show error message if there's an issue
-    }
-
-    return (
-        <div>
-            <h1>Medicines List</h1>
-            {medicines.length === 0 ? (
-                <p>No medicines found. Add some medicines!</p>
-            ) : (
-                <ul>
-                    {medicines.map((medicine) => (
-                        <li key={medicine._id}>
-                            <strong>{medicine.name}</strong>
-                            <p>Expiry Date: {new Date(medicine.expiryDate).toLocaleDateString()}</p>
-                            <p>Uses: {medicine.uses}</p>
-                            <p>Manufacturing Date: {new Date(medicine.manufacturingDate).toLocaleDateString()}</p>
-                            <a href={`/medicine/${medicine._id}`}>View Details</a>
-                        </li>
-                    ))}
-                </ul>
-            )}
-        </div>
-    );
+  return (
+    <Container className="mt-5">
+      <h2 className="text-center mb-4 text-light">Medicines List</h2>
+      <Row>
+        {medicines.length === 0 ? (
+          <p>No medicines available</p>
+        ) : (
+          medicines.map(medicine => (
+            <Col md={4} key={medicine._id} className="mb-4">
+              <Card className="medicine-card shadow-lg">
+                <Card.Body>
+                  <Card.Title>{medicine.name}</Card.Title>
+                  <Card.Subtitle className="mb-2 text-muted">Expiry Date: {medicine.expiryDate}</Card.Subtitle>
+                  <Card.Text>{medicine.uses}</Card.Text>
+                  <Link to={`/medicine/${medicine._id}`}>
+                    <Button variant="outline-primary">View Details</Button>
+                  </Link>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))
+        )}
+      </Row>
+    </Container>
+  );
 };
 
 export default MedicineList;

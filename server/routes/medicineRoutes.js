@@ -3,10 +3,10 @@ const mongoose = require('mongoose');
 const router = express.Router();
 const Medicine = require('../models/Medicine');
 const QRCode = require('qrcode');
-const isAdmin = require('../middleware/authMiddleware');
+const isAdmin = require('../middleware/authMiddleware'); // Ensure this is correctly implemented
 
 // GET all medicines
-router.get('/', async (req, res) => {  // Remove '/api/medicines' and keep it as '/'
+router.get('/', async (req, res) => {
     try {
         const medicines = await Medicine.find();
         res.json(medicines);
@@ -60,7 +60,8 @@ router.get('/:id/qr-code', async (req, res) => {
 });
 
 // Create a new medicine
-router.post('/api/medicines', isAdmin, async (req, res) => {
+// routes/medicineRoutes.js
+router.post('/', async (req, res) => {  // Removed 'isAdmin' middleware
     try {
         const { name, expiryDate, uses, manufacturingDate } = req.body;
 
@@ -94,8 +95,9 @@ router.post('/api/medicines', isAdmin, async (req, res) => {
     }
 });
 
+
 // Update an existing medicine by ID
-router.put('/:id', async (req, res) => {  // Use just '/:id' and not '/api/medicines/:id'
+router.put('/:id', async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -129,7 +131,7 @@ router.put('/:id', async (req, res) => {  // Use just '/:id' and not '/api/medic
 });
 
 // Delete a medicine by ID
-router.delete('/:id', async (req, res) => { // Use just '/:id' and not '/api/medicines/:id'
+router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
 

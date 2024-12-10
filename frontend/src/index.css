@@ -11,3 +11,45 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+/* src/index.css or styles.css */
+.medicine-card {
+  background: linear-gradient(to right, #6a11cb, #2575fc);
+  color: white;
+  border-radius: 10px;
+  transition: transform 0.2s ease-in-out;
+}
+
+.medicine-card:hover {
+  transform: scale(1.05);
+}
+
+.medicine-card .card-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.medicine-card .card-text {
+  font-size: 1rem;
+}
+/* src/index.css or styles.css */
+.medicine-details-card {
+  background: linear-gradient(to right, #ff7e5f, #feb47b);
+  color: white;
+  border-radius: 15px;
+}
+
+.medicine-details-card .card-title {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.medicine-details-card .card-text {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.medicine-details-card img {
+  max-width: 200px;
+  margin: 20px auto;
+  display: block;
+}

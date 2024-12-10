@@ -1,25 +1,44 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const authRoutes = require('./routes/authRoutes'); // Import the login route
-const medicineRoutes = require('./routes/medicineRoutes'); // Your other routes
-const app = express();
+// server.js (Node.js/Express backend)
 
-// Middleware setup
-app.use(cors());
+const express = require('express');
+const app = express();
+const cors = require('cors');
+
+app.use(cors()); // Enable CORS to allow cross-origin requests from your frontend
 app.use(express.json());
 
-// Register routes
-app.use('/api/auth', authRoutes); // Auth routes (login)
-app.use('/api/medicines', medicineRoutes); // Medicine routes
+const medicines = [
+  {
+    _id: '1',
+    name: 'Aspirin',
+    expiryDate: '2025-12-31',
+    uses: 'Pain relief',
+    manufacturingDate: '2022-01-01',
+    qrCode: 'https://example.com/qr1.png',
+  },
+  {
+    _id: '2',
+    name: 'Paracetamol',
+    expiryDate: '2026-12-31',
+    uses: 'Fever reducer',
+    manufacturingDate: '2023-01-01',
+    qrCode: 'https://example.com/qr2.png',
+  },
+];
 
-// Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/medicine-inventory', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
-.then(() => console.log('Connected to MongoDB'))
-.catch((err) => console.error('Failed to connect to MongoDB:', err));
+app.get('/api/medicines', (req, res) => {
+  res.json(medicines);
+});
+
+app.get('/api/medicines/:id', (req, res) => {
+  const medicine = medicines.find(m => m._id === req.params.id);
+  if (!medicine) {
+    return res.status(404).json({ message: 'Medicine not found' });
+  }
+  res.json(medicine);
+});
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
