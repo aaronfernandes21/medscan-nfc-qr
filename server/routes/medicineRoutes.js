@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const router = express.Router();
 const Medicine = require('../models/Medicine');
 const QRCode = require('qrcode');
-const isAdmin = require('../middleware/authMiddleware'); // Ensure this is correctly implemented
 
 // GET all medicines
 router.get('/', async (req, res) => {
@@ -19,15 +18,19 @@ router.get('/', async (req, res) => {
 // GET single medicine by ID
 router.get('/:id', async (req, res) => {
     try {
-        console.log(`Received request for medicine with ID: ${req.params.id}`);
-        const medicine = await Medicine.findById(req.params.id);
-        
+        const { id } = req.params;
+
+        // Validate the ID format
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ message: 'Invalid medicine ID format.' });
+        }
+
+        const medicine = await Medicine.findById(id);
+
         if (!medicine) {
-            console.log('Medicine not found.');
             return res.status(404).json({ message: 'Medicine not found' });
         }
 
-        console.log('Medicine found:', medicine);
         res.status(200).json(medicine);
     } catch (err) {
         console.error('Error fetching medicine:', err);
@@ -40,15 +43,14 @@ router.get('/:id/qr-code', async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Validate the ID
+        // Validate the ID format
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            console.error(`Invalid ID format: ${id}`);
             return res.status(400).json({ message: 'Invalid medicine ID format.' });
         }
 
         const medicine = await Medicine.findById(id);
+
         if (!medicine) {
-            console.error(`Medicine not found for ID: ${id}`);
             return res.status(404).json({ message: 'Medicine not found' });
         }
 
@@ -60,13 +62,13 @@ router.get('/:id/qr-code', async (req, res) => {
 });
 
 // Create a new medicine
-// routes/medicineRoutes.js
-router.post('/', async (req, res) => {  // Removed 'isAdmin' middleware
+router.post('/', async (req, res) => {
     try {
         const { name, expiryDate, uses, manufacturingDate } = req.body;
 
+        // Validate input fields
         if (!name || !expiryDate || !uses || !manufacturingDate) {
-            return res.status(400).json({ message: 'Missing required fields' });
+            return res.status(400).json({ message: 'All fields are required.' });
         }
 
         // Create a new Medicine instance
@@ -95,31 +97,29 @@ router.post('/', async (req, res) => {  // Removed 'isAdmin' middleware
     }
 });
 
-
 // Update an existing medicine by ID
 router.put('/:id', async (req, res) => {
     try {
         const { id } = req.params;
+        const { name, expiryDate, uses, manufacturingDate } = req.body;
 
-        // Validate the ID
+        // Validate the ID format
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            console.error(`Invalid ID format: ${id}`);
             return res.status(400).json({ message: 'Invalid medicine ID format.' });
+        }
+
+        // Validate input fields
+        if (!name || !expiryDate || !uses || !manufacturingDate) {
+            return res.status(400).json({ message: 'All fields are required.' });
         }
 
         const updatedMedicine = await Medicine.findByIdAndUpdate(
             id,
-            {
-                name: req.body.name,
-                expiryDate: req.body.expiryDate,
-                uses: req.body.uses,
-                manufacturingDate: req.body.manufacturingDate,
-            },
+            { name, expiryDate, uses, manufacturingDate },
             { new: true, runValidators: true } // Return the updated document
         );
 
         if (!updatedMedicine) {
-            console.error(`Medicine not found for ID: ${id}`);
             return res.status(404).json({ message: 'Medicine not found' });
         }
 
@@ -135,15 +135,14 @@ router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Validate the ID
+        // Validate the ID format
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            console.error(`Invalid ID format: ${id}`);
             return res.status(400).json({ message: 'Invalid medicine ID format.' });
         }
 
         const medicine = await Medicine.findByIdAndDelete(id);
+
         if (!medicine) {
-            console.error(`Medicine not found for ID: ${id}`);
             return res.status(404).json({ message: 'Medicine not found' });
         }
 

@@ -1,0 +1,30 @@
+/* HomePage.css */
+.home-page {
+    background: linear-gradient(135deg, #007bff, #5a5af3);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+  }
+  
+  h1.display-4 {
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  p.lead {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+  }
+  
+  button {
+    padding: 10px 20px;
+    font-size: 1.1rem;
+  }
+  
+  button:hover {
+    transform: scale(1.05);
+    transition: all 0.3s ease;
+  }
+  
