@@ -60,6 +60,22 @@ router.get('/:id/qr-code', async (req, res) => {
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 });
+router.get('/alerts', async (req, res) => {
+    try {
+        const today = new Date();
+        const thresholdDate = new Date(today);
+        thresholdDate.setDate(today.getDate() + 7); // Alert for medicines expiring in 7 days
+
+        const expiringMedicines = await Medicine.find({ 
+            expiryDate: { $lte: thresholdDate } 
+        });
+
+        res.status(200).json(expiringMedicines);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to fetch alerts' });
+    }
+});
 
 // Create a new medicine
 router.post('/', async (req, res) => {
@@ -96,6 +112,16 @@ router.post('/', async (req, res) => {
         res.status(500).json({ message: 'Failed to add medicine', error: err.message });
     }
 });
+app.post('/api/medicines', async (req, res) => {
+    try {
+        const newMedicine = new Medicine(req.body);
+        await newMedicine.save();
+        res.status(201).send(newMedicine);
+    } catch (err) {
+        res.status(500).send({ error: err.message });
+    }
+});
+
 
 // Update an existing medicine by ID
 router.put('/:id', async (req, res) => {
@@ -152,5 +178,6 @@ router.delete('/:id', async (req, res) => {
         res.status(500).json({ message: 'Failed to delete medicine', error: err.message });
     }
 });
+
 
 module.exports = router;

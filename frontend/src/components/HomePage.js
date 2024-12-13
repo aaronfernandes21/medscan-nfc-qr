@@ -11,8 +11,13 @@ const HomePage = () => {
                 <Col>
                     <h1 className="display-4">Welcome to MedTracker</h1>
                     <p className="lead">Track and manage your medicines effortlessly.</p>
-                    <Button onClick={() => navigate('/add-medicine')} variant="primary">
+                    {/* Button to navigate to Add Medicine page */}
+                    <Button onClick={() => navigate('/add-medicine')} variant="primary" className="mb-3">
                         Add Medicine
+                    </Button>
+                    {/* Button to navigate to View Medicine List page */}
+                    <Button onClick={() => navigate('/medicines')} variant="secondary">
+                        View Medicines
                     </Button>
                 </Col>
             </Row>

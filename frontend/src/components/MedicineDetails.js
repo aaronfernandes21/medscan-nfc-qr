@@ -1,67 +1,61 @@
-// src/components/MedicineDetails.js
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { Container, Row, Col, Card, Button } from 'react-bootstrap';
+import QRCode from 'qrcode';
+import './MedicineDetails.css';
 
 const MedicineDetails = () => {
-  const { id } = useParams();
-  const [medicine, setMedicine] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+    const { id } = useParams(); // Get the medicine ID from the URL
+    const [medicine, setMedicine] = useState(null); // Store the medicine data
+    const [qrCode, setQRCode] = useState(''); // Store the QR code
+    const [error, setError] = useState('');
 
-  useEffect(() => {
-    const fetchMedicine = async () => {
-      try {
-        const response = await axios.get(`http://localhost:5000/api/medicines/${id}`);
-        setMedicine(response.data);
-      } catch (err) {
-        setError('Failed to fetch medicine details.');
-      } finally {
-        setLoading(false);
-      }
-    };
+    useEffect(() => {
+        // Fetch the medicine data from the backend by ID
+        axios
+            .get(`http://localhost:5000/api/medicines/${id}`)
+            .then((response) => {
+                const medicineData = response.data;
+                setMedicine(medicineData);
 
-    if (id) {
-      fetchMedicine();
-    }
-  }, [id]);
+                // Generate QR code for the medicine ID
+                QRCode.toDataURL(medicineData._id)
+                    .then((url) => setQRCode(url))
+                    .catch((err) => console.error('Error generating QR code:', err));
+            })
+            .catch((err) => {
+                console.error('Error fetching medicine details:', err);
+                setError('Failed to fetch medicine details');
+            });
+    }, [id]); // Re-run the effect if the ID changes
 
-  if (loading) return <p className="text-light">Loading...</p>;
-  if (error) return <p className="text-danger">{error}</p>;
+    return (
+        <div className="medicine-details-container">
+            {error && <p className="medicine-details-error">{error}</p>}
+            {medicine ? (
+                <div>
+                    <h1>{medicine.name}</h1>
+                    <p><strong>Expiry Date:</strong> {medicine.expiryDate}</p>
+                    <p><strong>Manufacturing Date:</strong> {medicine.manufacturingDate}</p>
+                    <p><strong>Uses:</strong> {medicine.uses}</p>
 
-  return (
-    <Container className="mt-5">
-      {medicine ? (
-        <Row>
-          <Col md={6}>
-            <Card className="medicine-details-card shadow-lg">
-              <Card.Body>
-                <Card.Title className="text-center">{medicine.name}</Card.Title>
-                <Card.Text>
-                  <strong>Expiry Date:</strong> {medicine.expiryDate}
-                </Card.Text>
-                <Card.Text>
-                  <strong>Manufacturing Date:</strong> {medicine.manufacturingDate}
-                </Card.Text>
-                <Card.Text>
-                  <strong>Uses:</strong> {medicine.uses}
-                </Card.Text>
-                <Card.Text>
-                  <img src={medicine.qrCode} alt={`${medicine.name} QR Code`} className="img-fluid" />
-                </Card.Text>
-                <Button variant="primary" onClick={() => window.history.back()}>
-                  Back to List
-                </Button>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-      ) : (
-        <p className="text-danger">Medicine not found</p>
-      )}
-    </Container>
-  );
+                    {/* QR Code Section */}
+                    <div className="qr-code-section">
+                        {qrCode ? (
+                            <>
+                                <h3>QR Code:</h3>
+                                <img src={qrCode} alt="QR Code" />
+                            </>
+                        ) : (
+                            <p>Generating QR Code...</p>
+                        )}
+                    </div>
+                </div>
+            ) : (
+                <p className="medicine-details-loading">Loading...</p>
+            )}
+        </div>
+    );
 };
 
 export default MedicineDetails;

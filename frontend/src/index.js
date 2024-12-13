@@ -9,9 +9,8 @@ import reportWebVitals from './reportWebVitals'; // Optional for measuring perfo
 // Create the root element and render the app
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
+    // Temporarily remove StrictMode
     <App />
-  </React.StrictMode>
 );
 
 // Optional: Report web vitals for performance tracking
