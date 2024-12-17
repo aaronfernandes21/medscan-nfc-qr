@@ -1,22 +1,26 @@
 import React, { useState } from 'react';
-import QRCode from 'qrcode'; // Import the QR code library
+import QRCode from 'qrcode';
 import axios from 'axios';
-import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Form, Button, Alert, Spinner, Modal } from 'react-bootstrap';
 
 const AddMedicine = () => {
     const [name, setName] = useState('');
     const [expiryDate, setExpiryDate] = useState('');
     const [uses, setUses] = useState('');
     const [manufacturingDate, setManufacturingDate] = useState('');
-    const [qrCode, setQrCode] = useState(''); // Store the generated QR code
+    const [qrCode, setQrCode] = useState('');
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [showModal, setShowModal] = useState(false); // For modal feedback
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
+        setError('');
+        setSuccessMessage('');
 
         try {
-            // Update the URL to use localtunnel's public URL
             const response = await axios.post('https://witty-actors-taste.loca.lt/api/medicines', {
                 name,
                 expiryDate,
@@ -24,8 +28,8 @@ const AddMedicine = () => {
                 manufacturingDate,
             });
 
-            const medicineId = response.data._id; // Get the newly created medicine ID
-            const medicineUrl = `https://witty-actors-taste.loca.lt/api/medicines/${medicineId}`; // Create the URL
+            const medicineId = response.data._id;
+            const medicineUrl = `https://witty-actors-taste.loca.lt/api/medicines/${medicineId}`;
 
             // Generate QR code
             const qr = await QRCode.toDataURL(medicineUrl);
@@ -36,14 +40,21 @@ const AddMedicine = () => {
             setExpiryDate('');
             setUses('');
             setManufacturingDate('');
-            setError('');
             setSuccessMessage('Medicine successfully added!');
+            setIsLoading(false);
+
+            // Show the success modal
+            setShowModal(true);
+
         } catch (err) {
-            console.error('Error adding medicine:', err);
+            setIsLoading(false);
             setError('Failed to add medicine');
             setSuccessMessage('');
         }
     };
+
+    // Close the modal
+    const handleClose = () => setShowModal(false);
 
     return (
         <Container className="mt-5">
@@ -98,8 +109,13 @@ const AddMedicine = () => {
                             type="submit"
                             variant="primary"
                             className="w-100 mt-4"
+                            disabled={isLoading}
                         >
-                            Add Medicine
+                            {isLoading ? (
+                                <Spinner animation="border" size="sm" /> // Loading spinner
+                            ) : (
+                                'Add Medicine'
+                            )}
                         </Button>
                     </Form>
 
@@ -115,11 +131,10 @@ const AddMedicine = () => {
                         </Alert>
                     )}
 
-                    {/* Display QR code */}
                     {qrCode && (
                         <div className="text-center mt-4">
                             <h3>Generated QR Code</h3>
-                            <img src={qrCode} alt="Medicine QR Code" />
+                            <img src={qrCode} alt="Medicine QR Code" className="img-fluid" />
                             <p className="mt-2">
                                 <a href={qrCode} download="medicine-qr-code.png">
                                     Download QR Code
@@ -129,6 +144,25 @@ const AddMedicine = () => {
                     )}
                 </Col>
             </Row>
+
+            {/* Success Modal */}
+            <Modal show={showModal} onHide={handleClose}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Medicine Added Successfully!</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>Your medicine has been successfully added, and the QR code has been generated.</p>
+                    <img src={qrCode} alt="Medicine QR Code" className="img-fluid" />
+                    <p>
+                        <a href={qrCode} download="medicine-qr-code.png">Download QR Code</a>
+                    </p>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>
+                        Close
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
     );
 };

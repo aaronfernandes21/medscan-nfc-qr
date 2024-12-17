@@ -99,7 +99,7 @@ router.post('/', async (req, res) => {
         const savedMedicine = await newMedicine.save();
 
         // Generate QR Code containing the URL to the medicine details
-        const medicineUrl = `http://localhost:3000/medicine/${savedMedicine._id}`;
+        const medicineUrl = `${ngrokBaseUrl}/${savedMedicine._id}`;
         const qrCode = await QRCode.toDataURL(medicineUrl);
 
         // Update the saved medicine with the QR Code
