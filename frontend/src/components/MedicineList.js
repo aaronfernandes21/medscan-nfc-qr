@@ -9,11 +9,19 @@ const MedicineList = () => {
     const [loading, setLoading] = useState(true); // State to handle loading state
 
     useEffect(() => {
-        // Fetch all medicines from the server
+        // Fetch all medicines from the server using the BASE_URL from the environment variable
         axios
-            .get('http://localhost:5000/api/medicines')
+            .get(`${process.env.REACT_APP_BASE_URL}/api/medicines`) // Use the correct API endpoint
             .then((response) => {
-                setMedicines(response.data); // Set the list of medicines
+                console.log(response.data); // Log the response to check the format
+                // Assuming the response contains an array of medicines
+                if (Array.isArray(response.data)) {
+                    setMedicines(response.data); // Set the list of medicines if it's an array
+                } else if (response.data.medicines) {
+                    setMedicines(response.data.medicines); // Access the 'medicines' array if it's inside an object
+                } else {
+                    setMedicines([]); // Fallback to empty array if no medicines found
+                }
                 setLoading(false); // Set loading to false after data is fetched
             })
             .catch((err) => {
@@ -24,17 +32,17 @@ const MedicineList = () => {
     }, []); // Empty dependency array to run only once when the component mounts
 
     if (loading) {
-        return <div>Loading medicines...</div>; // Display loading message while fetching data
+        return <div className="loading">Loading medicines...</div>; // Show loading message
     }
 
     if (error) {
-        return <div>{error}</div>; // Display error message if there's an issue with the fetch
+        return <div className="error-message">{error}</div>; // Show error message
     }
 
     return (
         <div className="container mt-5">
             <h1>Medicine List</h1>
-            <table className="table">
+            <table className={`table ${!loading ? 'visible' : ''}`}> {/* Add visible class when data is loaded */}
                 <thead>
                     <tr>
                         <th>Name</th>
@@ -55,7 +63,6 @@ const MedicineList = () => {
                                 <td>{medicine.expiryDate}</td>
                                 <td>{medicine.manufacturingDate}</td>
                                 <td>
-                                    {/* Link to the medicine details page */}
                                     <Link to={`/medicine/${medicine._id}`} className="btn btn-info">
                                         View Details
                                     </Link>

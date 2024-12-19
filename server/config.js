@@ -3,6 +3,9 @@ dotenv.config();
 
 const mongoose = require("mongoose");
 
+// Base URL for API (removed trailing space)
+const BASE_URL = "https://74a2-125-18-25-132.ngrok-free.app"; 
+
 // MongoDB connection
 const connectDB = async () => {
     try {
@@ -17,4 +20,4 @@ const connectDB = async () => {
     }
 };
 
-module.exports = connectDB;
+module.exports = { connectDB, BASE_URL };

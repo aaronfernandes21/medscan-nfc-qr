@@ -13,7 +13,7 @@ const MedicineDetails = () => {
     useEffect(() => {
         // Fetch the medicine data from the backend by ID
         axios
-            .get(`http://localhost:5000/api/medicines/${id}`)
+            .get(`${process.env.REACT_APP_BASE_URL}/api/medicines/${id}`) // Use BASE_URL from environment variable
             .then((response) => {
                 const medicineData = response.data;
                 setMedicine(medicineData);

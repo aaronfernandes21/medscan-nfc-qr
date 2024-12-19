@@ -18,6 +18,8 @@
     display: flex;
     flex-wrap: wrap;
     gap: 30px;
+    justify-content: center; /* Center items */
+    transition: opacity 0.5s ease-in; /* Smooth fade-in transition */
 }
 
 .medicine-item {
@@ -27,6 +29,12 @@
     width: 240px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    opacity: 0; /* Initially hidden for smooth loading */
+    transition-delay: 0.5s; /* Delay transition to allow fade-in */
+}
+
+.medicine-item.loaded {
+    opacity: 1; /* Make the item visible once it's loaded */
 }
 
 .medicine-item:hover {

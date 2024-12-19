@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import QRCode from 'qrcode';
 import axios from 'axios';
-import { Container, Row, Col, Form, Button, Alert, Spinner, Modal } from 'react-bootstrap';
+import { Container, Row, Col, Form, Button, Alert, Modal, Spinner } from 'react-bootstrap'; // Added Spinner import
 
 const AddMedicine = () => {
     const [name, setName] = useState('');
@@ -12,7 +12,7 @@ const AddMedicine = () => {
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [showModal, setShowModal] = useState(false); // For modal feedback
+    const [showModal, setShowModal] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -21,7 +21,7 @@ const AddMedicine = () => {
         setSuccessMessage('');
 
         try {
-            const response = await axios.post('https://witty-actors-taste.loca.lt/api/medicines', {
+            const response = await axios.post(`process.env.REACT_APP_BASE_URL}/api/medicines`, {
                 name,
                 expiryDate,
                 uses,
@@ -29,7 +29,7 @@ const AddMedicine = () => {
             });
 
             const medicineId = response.data._id;
-            const medicineUrl = `https://witty-actors-taste.loca.lt/api/medicines/${medicineId}`;
+            const medicineUrl = `${process.env.REACT_APP_BASE_URL}/api/medicines/${medicineId}`;
 
             // Generate QR code
             const qr = await QRCode.toDataURL(medicineUrl);
@@ -63,59 +63,47 @@ const AddMedicine = () => {
                     <h1 className="text-center mb-4">Add New Medicine</h1>
 
                     <Form onSubmit={handleSubmit} className="shadow p-4 rounded bg-light">
+                        {/* Form fields for name, expiryDate, uses, and manufacturingDate */}
                         <Form.Group controlId="formName">
-                            <Form.Label>Name:</Form.Label>
+                            <Form.Label>Name</Form.Label>
                             <Form.Control
                                 type="text"
                                 placeholder="Enter medicine name"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                required
                             />
                         </Form.Group>
 
-                        <Form.Group controlId="formExpiryDate" className="mt-3">
-                            <Form.Label>Expiry Date:</Form.Label>
+                        <Form.Group controlId="formExpiryDate">
+                            <Form.Label>Expiry Date</Form.Label>
                             <Form.Control
                                 type="date"
                                 value={expiryDate}
                                 onChange={(e) => setExpiryDate(e.target.value)}
-                                required
                             />
                         </Form.Group>
 
-                        <Form.Group controlId="formUses" className="mt-3">
-                            <Form.Label>Uses:</Form.Label>
+                        <Form.Group controlId="formUses">
+                            <Form.Label>Uses</Form.Label>
                             <Form.Control
-                                type="text"
-                                placeholder="Enter uses of the medicine"
+                                as="textarea"
+                                rows={3}
                                 value={uses}
                                 onChange={(e) => setUses(e.target.value)}
-                                required
                             />
                         </Form.Group>
 
-                        <Form.Group controlId="formManufacturingDate" className="mt-3">
-                            <Form.Label>Manufacturing Date:</Form.Label>
+                        <Form.Group controlId="formManufacturingDate">
+                            <Form.Label>Manufacturing Date</Form.Label>
                             <Form.Control
                                 type="date"
                                 value={manufacturingDate}
                                 onChange={(e) => setManufacturingDate(e.target.value)}
-                                required
                             />
                         </Form.Group>
 
-                        <Button
-                            type="submit"
-                            variant="primary"
-                            className="w-100 mt-4"
-                            disabled={isLoading}
-                        >
-                            {isLoading ? (
-                                <Spinner animation="border" size="sm" /> // Loading spinner
-                            ) : (
-                                'Add Medicine'
-                            )}
+                        <Button variant="primary" type="submit" disabled={isLoading}>
+                            {isLoading ? <Spinner animation="border" size="sm" /> : 'Submit'} {/* Show Spinner when loading */}
                         </Button>
                     </Form>
 
